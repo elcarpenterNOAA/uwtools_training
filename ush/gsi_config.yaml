@@ -1,0 +1,12 @@
+gsi:
+  execution:
+    batchargs:
+      walltime: "00:50:00"
+      cores: 120
+      exclusive: true
+    executable:
+    mpiargs:
+    mpicmd: srun
+    threads: 1
+  rundir: /scratch3/BMC/wrfruc/cholt/rrfs_work/stmp/rrfsx/v0.3.2//nwges/para/rrfs_a/{{ timevars.yyyymmddhh }}/anl_conv_gsi
+

@@ -1,0 +1,111 @@
+timevars:
+  yyyymmddhh: '{{ cycle.strftime("%Y%m%d%H) }}'
+  hh: '{{ cycle.strftime("%H) }}'
+user:
+  rrfs_workflow_app: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/
+  physics_suite: FV3_HRRR_gf
+forecast_prod:
+  fv3:
+    diag_table:
+      template_file: "{{ user.rrfs_workflow_app }}/parm/diag_table.{{ user.physics_suite }}"
+      template_values:
+        cres: C775
+    domain: regional
+    execution:
+      batchargs:
+        nodes: 5
+        tasks_per_node: 20
+        walltime: "00:45:00"
+      executable: "{{ user.rrfs_workflow_app }}/exec/ufs_model"
+      mpiargs:
+        - "--export=ALL"
+      mpicmd: srun
+      threads: 1
+    field_table:
+      base_file: "{{ user.rrfs_workflow_app }}/parm/field_table.{{ user.physics_suite }}"
+    files_to_copy:
+      INPUT/gfs_ctrl.nc: rrfs_a.t{{ timevars.hh }}z.gfs_ctrl.nc
+      INPUT/gfs_data.nc: rrfs_a.t{{ timevars.hh }}z.gfs_data.tile7.halo0.nc'
+      INPUT/sfc_data.nc: rrfs_a.t{{ timevars.hh }}z.sfc_data.tile7.halo0.nc'
+    files_to_link:
+      INPUT/grid_spec.nc: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/fix_lam/C775.mosaic.halo3.nc
+      INPUT/grid.tile7.halo4.nc: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/fix_lam/C775_grid.tile7.halo4.nc
+      INPUT/C775_grid.tile7.halo3.nc: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/fix_lam/C775_grid.tile7.halo3.nc
+      INPUT/oro_data.nc: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/fix_lam/C775_oro_data.tile7.halo0.nc
+      INPUT/oro_data.tile7.halo4.nc: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/fix_lam/C775_oro_data.tile7.halo4.nc
+      INPUT/oro_data_ls.nc: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/fix_lam/C775_oro_data_ls.tile7.halo{{ constants.NH0 }}.nc
+      INPUT/oro_data_ss.nc: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/fix_lam/C775_oro_data_ss.tile7.halo{{ constants.NH0 }}.nc
+      aerosol.dat: '{{ workflow.FIXam }}/global_climaeropac_global.txt'
+      co2historicaldata_2010.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2010.txt'
+      co2historicaldata_2011.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2011.txt'
+      co2historicaldata_2012.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2012.txt'
+      co2historicaldata_2013.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2013.txt'
+      co2historicaldata_2014.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2014.txt'
+      co2historicaldata_2015.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2015.txt'
+      co2historicaldata_2016.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2016.txt'
+      co2historicaldata_2017.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2017.txt'
+      co2historicaldata_2018.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2018.txt'
+      co2historicaldata_2019.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2019.txt'
+      co2historicaldata_2020.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2020.txt'
+      co2historicaldata_2021.txt: '{{ workflow.FIXam }}/fix_co2_proj/global_co2historicaldata_2021.txt'
+      co2historicaldata_glob.txt: '{{ workflow.FIXam }}/global_co2historicaldata_glob.txt'
+      co2monthlycyc.txt: '{{ workflow.FIXam }}/co2monthlycyc.txt'
+      global_h2oprdlos.f77: '{{ workflow.FIXam }}/global_h2o_pltc.f77'
+      global_albedo4.1x1.grb: '{{ workflow.FIXam }}/global_albedo4.1x1.grb'
+      global_zorclim.1x1.grb: '{{ workflow.FIXam }}/global_zorclim.1x1.grb'
+      global_tg3clim.2.6x1.5.grb: '{{ workflow.FIXam }}/global_tg3clim.2.6x1.5.grb'
+      sfc_emissivity_idx.txt: '{{ workflow.FIXam }}/global_sfc_emissivity_idx.txt'
+      solarconstant_noaa_an.txt: '{{ workflow.FIXam }}/global_solarconstant_noaa_an.txt'
+      global_o3prdlos.f77: '{{ workflow.FIXam }}/ozprdlos_2015_new_sbuvO3_tclm15_nuchem.f77'
+      CCN_ACTIVATE.BIN:
+      freezeH2O.dat:
+      qr_acr_qg.dat:
+      qr_acr_qgV2.dat:
+      qr_acr_qs.dat:
+      qr_acr_qsV2.dat:
+      Thompson_MP_MONTHLY_CLIMO.nc:
+    lateral_boundary_conditions:
+      interval_hours: 1
+      offset: 0
+      path: rrfs_a.t{{ timevars.hh}z.gfs_bndy.tile7.f{forecast_hour:03d}.nc
+    length: 6
+    model_configure:
+      update_values:
+        start_year: !int '{{ cycle.year }}'
+        start_month: !int '{{ cycle.month }}'
+        start_day: !int '{{ cycle.day }}'
+        start_hour: !int '{{ cycle.hour }}'
+        start_minute: !int '{{ cycle.minute }}'
+        start_second: !int '{{ cycle.second }}'
+        nhours_fcst: 6
+        fhrot: 0
+        run_continue: false
+        ens_sps: false
+        dt_atmos: 120
+        calendar: julian
+        memuse_verbose: false
+        restart_interval: 0
+        output_1st_tstep_rst: false
+        write_dopost: false
+        ideflate: 0
+        nbits: 0
+        ichunk2d: -1
+        jchunk2d: -1
+        ichunk3d: -1
+        jchunk3d: -1
+        kchunk3d: -1
+        itasks: 1
+        quilting: true
+        write_groups: 1
+        write_tasks_per_group: 2
+        num_files: 2
+        filename_base: 'dyn phy'
+        output_file: 'netcdf netcdf'
+        output_fh: '1  -1'
+        nsout: -1
+        output_grid: lambert_conformal
+    namelist:
+      base_file: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/input.nml
+    rundir: /scratch3/BMC/wrfruc/cholt/rrfs_work/stmp/rrfsx/v0.3.2//nwges/para/rrfs_a/{{ timevars.yyyymmddhh }}/fcst_fv3lam
+
+
