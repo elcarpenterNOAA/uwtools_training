@@ -1,12 +1,176 @@
-gsi:
-  execution:
-    batchargs:
-      walltime: "00:50:00"
-      cores: 120
-      exclusive: true
-    executable:
-    mpiargs:
-    mpicmd: srun
-    threads: 1
-  rundir: /scratch3/BMC/wrfruc/cholt/rrfs_work/stmp/rrfsx/v0.3.2//nwges/para/rrfs_a/{{ timevars.yyyymmddhh }}/anl_conv_gsi
+analysis_prod:
+  gsi:
+    execution:
+      batchargs:
+        walltime: "00:50:00"
+        cores: 120
+        exclusive: true
+      executable:
+      mpiargs:
+        - ulimit -s unlimited
+        - export OMP_STACKSIZE=300M
+      mpicmd: srun
+      threads: 1
+    regional_ensemble_background_files: # these get linked into rundir
+      path:
+      prior_cycles: 
+      files:
+        fv3SAR${ens_nstarthr}_ens_mem${memcharv0}-fv3_dynvars: ${bkpathmem}/${restart_prefix}fv_core.res.tile1.nc 
+        fv3SAR${ens_nstarthr}_ens_mem${memcharv0}-fv3_tracer: ${bkpathmem}/${restart_prefix}fv_tracer.res.tile1.nc
+        fv3SAR${ens_nstarthr}_ens_mem${memcharv0}-fv3_phyvars: ${bkpathmem}/${restart_prefix}phy_data.nc
+    global_ensemble_background_files: # these get listed in filelist03
+      path: ${ENKF_FCST}/enkfgdas.${eyyyymmdd}/${ehh}/atmos/mem???/${enkfcstname}.nc
+      prior_cycles: 100
+    background_files:
+      protocol: link
+      io_layout: 1
+      files: # could have io_layout -- 3 digit suffix on each
+        fv3_dynvars: ${bkpath}/fv_core.res.tile1.nc
+        fv3_tracer: ${bkpath}/fv_tracer.res.tile1.nc
+        fv3_phyvars: ${bkpath}/phy_data.nc
+      path: "{{ forecast.fv3.rundir }}/INPUT"
+    satbias:
+      protocol: copy
+      prior_cycles: 240
+      files:
+        satbias_in: ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${SAT_TIME}_satbias
+        satbias_pc: ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${SAT_TIME}_satbias_pc
+      backup_files:
+        satbias_in: ${FIX_GSI}/rrfs.starting_satbias
+        satbias_pc: ${FIX_GSI}/rrfs.starting_satbias_pc
+    radstat: # optional file
+      prior_cycles: 240
+      files:
+        radstat.rrfs: ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${SAT_TIME}_radstat
+    files_to_link:
+      fv3_akbk: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/fix/gsi/RRFS_CONUS_13km/akbk
+      fv3_grid_spec: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/fix/gsi/RRFS_CONUS_13km/fv3_grid_spec
+      fv3_dynvars: "{{ gsi.bkgdir }}/fv_core.res.tile1.nc"
+      fv3_tracer: "{{ gsi.bkgdir }}/fv_tracer.res.tile1.nc"
+      fv3_sfcdata: "{{ gsi.bkgdir }}/sfc_data.nc"
+      fv3_phyvars: "{{ gsi.bkgdir }}/phy_data.nc"
+    files_to_copy:
+      anavinfo: "{{ platform.gsi_fixdir }}/anavinfo.rrfs_conv_dbz"
+      berror_stats: "{{ platform.gsi_fixdir }}/rrfs_glb_berror.l127y770.f77"
+      satinfo: "{{ platform.gsi_fixdir }}/global_satinfo.txt"
+      convinfo: "{{ platform.gsi_fixdir }}/convinfo.rrfs"
+      ozinfo: "{{ platform.gsi_fixdir }}/global_ozinfo.txt"
+      pcpinfo: "{{ platform.gsi_fixdir }}/global_pcpinfo.txt"
+      errtable: "{{ platform.gsi_fixdir }}/errtable.rrfs"
+      atms_beamwidth.txt: "{{ platform.gsi_fixdir }}/atms_beamwidth.txt"
+    coupler.res:
+      template_file: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/fix/gsi/RRFS_CONUS_13km/fv3_coupler.res
+      template_values:
+        yyyy: "{{ timevars.yyyy }}"
+        mm: "{{ timevars.mm }}"
+        dd: "{{ timevars.dd }}"
+        hh: "{{ timevars.hh }}"
+    crtm_files:
+      protocol: link
+      files:
+        crtm_coeffs/Nalli.IRwater.EmisCoeff.bin: Nalli.IRwater.EmisCoeff.bin
+        crtm_coeffs/NPOESS.IRice.EmisCoeff.bin: NPOESS.IRice.EmisCoeff.bin
+        crtm_coeffs/NPOESS.IRsnow.EmisCoeff.bin: NPOESS.IRsnow.EmisCoeff.bin
+        crtm_coeffs/NPOESS.IRland.EmisCoeff.bin: NPOESS.IRland.EmisCoeff.bin
+        crtm_coeffs/NPOESS.VISice.EmisCoeff.bin: NPOESS.VISice.EmisCoeff.bin
+        crtm_coeffs/NPOESS.VISland.EmisCoeff.bin: NPOESS.VISland.EmisCoeff.bin
+        crtm_coeffs/NPOESS.VISsnow.EmisCoeff.bin: NPOESS.VISsnow.EmisCoeff.bin
+        crtm_coeffs/NPOESS.VISwater.EmisCoeff.bin: NPOESS.VISwater.EmisCoeff.bin
+        crtm_coeffs/FASTEM6.MWwater.EmisCoeff.bin: FASTEM6.MWwater.EmisCoeff.bin
+        crtm_coeffs/AerosolCoeff.bin: AerosolCoeff.bin
+        crtm_coeffs/CloudCoeff.bin: CloudCoeff.bin
+    provider_list:
+      - ${FIX_GSI}/gsd_sfcobs_provider.txt
+    reject_list:
+      - ${AIRCRAFT_REJECT}/current_bad_aircraft.txt
+      - ${AIRCRAFT_REJECT}/${AIR_REJECT_FN}
+      - ${FIX_GSI}/current_bad_aircraft.txt
+    uselist:
+      - ${SFCOBS_USELIST}/current_mesonet_uselist.txt
+      - ${SFCOBS_USELIST}/${MESO_USELIST_FN}
+      - ${SFCOBS_USELIST}/gsd_sfcobs_uselist.txt
+      - ${FIX_GSI}/gsd_sfcobs_uselist.txt
+    crtm_satfino_files:
+      protocol: link
+      source: '{{ platform.fix_crtm }}'
+    observations:
+      protocol: link
+      files:
+        prepbufr: ${obspath_tmp}/${obsfileprefix}.t${HH}${SUBH}z.prepbufr.tm00
+        satwndbufr: ${obspath_tmp}/${obsfileprefix}.t${HH}${SUBH}z.satwnd.tm00.bufr_d
+        l2rwbufr: ${obspath_tmp}/${obsfileprefix}.t${HH}${SUBH}z.nexrad.tm00.bufr_d
+        amsuabufr: ${obspath_tmp}/${obsfileprefix}.t${HH}z.1bamua.tm00.bufr_d
+        amsuabufrears: ${obspath_tmp}/${obsfileprefix}.t${HH}z.esamua.tm00.bufr_d
+        mhsbufr: ${obspath_tmp}/${obsfileprefix}.t${HH}z.1bmhs.tm00.bufr_d
+        mhsbufrears: ${obspath_tmp}/${obsfileprefix}.t${HH}z.esmhs.tm00.bufr_d
+        atmsbufr: ${obspath_tmp}/${obsfileprefix}.t${HH}z.atms.tm00.bufr_d
+        atmsbufrears: ${obspath_tmp}/${obsfileprefix}.t${HH}z.esatms.tm00.bufr_d
+        atmsbufr_db: ${obspath_tmp}/${obsfileprefix}.t${HH}z.atmsdb.tm00.bufr_d
+        crisfsbufr: ${obspath_tmp}/${obsfileprefix}.t${HH}z.crisf4.tm00.bufr_d
+        crisfsbufr_db: ${obspath_tmp}/${obsfileprefix}.t${HH}z.crsfdb.tm00.bufr_d
+        iasibufr: ${obspath_tmp}/${obsfileprefix}.t${HH}z.mtiasi.tm00.bufr_d
+        iasibufrears: ${obspath_tmp}/${obsfileprefix}.t${HH}z.esiasi.tm00.bufr_d
+        iasibufr_db: ${obspath_tmp}/${obsfileprefix}.t${HH}z.iasidb.tm00.bufr_d
+        abibufr: ${obspath_tmp}/${obsfileprefix}.t${HH}z.gsrcsr.tm00.bufr_d
+        ssmisbufr: ${obspath_tmp}/${obsfileprefix}.t${HH}z.ssmisu.tm00.bufr_d
+        sevcsr: ${obspath_tmp}/${obsfileprefix}.t${HH}z.sevcsr.tm00.bufr_d
+    namelist:
+      update_values:
+        setup:
+          miter: 2
+          niter%1: 50
+          niter%2: 50
+          write_diag%2: false
+          diag_fed: true
+          diag_radardbz:
+          if_model_dbz: false
+          if_model_fed: false
+          lread_obs_save: false
+          lread_obs_skip: false
+          use_prepb_satwind: false
+          netcdf_diag: false
+          binary_diag: true
+          innov_use_model_fed: false
+        gridopts:
+          grid_ratio_fv3_regional: 2.0
+          fv3_io_layout_y: 1
+        bkgerr:
+          vs: 0.1
+          hzscl: [0.4,0.5,0.6]
+          usenewgfsberror: true
+        hybrid_ensemble:
+          l_hyb_ens: false
+          q_hyb_en: false
+          n_ens: 0
+          l_both_fv3sar_gfs_ens: false
+          n_ens_gfs: 0
+          n_ens_fv3sar: 0
+          weight_ens_gfs: 1.0
+          weight_ens_fv3sar: 1.0
+          beta_s0: 0.15
+          s_ens_h: [328.632,82.1580,4.10790,4.10790,82.1580]
+          s_ens_v: [3,3,-0.30125,-0.30125,0.0]
+          regional_ensemble_option: 1
+          grid_ratio_ens: 3
+          i_en_perts_io: 1
+          fv3sar_bg_opt: 0
+          readin_localization: false
+          parallelization_over_ensmembers: true
+          nsclgrp: 1
+          ngvarloc: 1
+          naensloc: !int '{{ nsclgrp * ngvarloc + nsclgrp - 1 }}'
+          r_ensloccov4tim: 1.0
+          r_ensloccov4var: 0.05
+          r_ensloccov4scl: 1.0
+          assign_vdl_nml: false
+          vdl_scale: 0
+        rapidrefresh_cldsurf:
+          l_gsd_soilTQ_nudge: false
+          i_use_2mQ4B: 2
+          i_use_2mT4B: 1
+        chem:
+          laeroana_fv3smoke: false
+          berror_fv3_cmaq_regional: false
+    rundir: /scratch3/BMC/wrfruc/cholt/rrfs_work/stmp/rrfsx/v0.3.2//nwges/para/rrfs_a/{{ timevars.yyyymmddhh }}/anl_conv_gsi
+
 
