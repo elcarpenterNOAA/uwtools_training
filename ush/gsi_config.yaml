@@ -12,14 +12,13 @@ analysis_prod:
       mpicmd: srun
       threads: 1
     regional_ensemble_background_files: # these get linked into rundir
-      path:
       prior_cycles: 
       files:
         fv3SAR${ens_nstarthr}_ens_mem${memcharv0}-fv3_dynvars: ${bkpathmem}/${restart_prefix}fv_core.res.tile1.nc 
         fv3SAR${ens_nstarthr}_ens_mem${memcharv0}-fv3_tracer: ${bkpathmem}/${restart_prefix}fv_tracer.res.tile1.nc
         fv3SAR${ens_nstarthr}_ens_mem${memcharv0}-fv3_phyvars: ${bkpathmem}/${restart_prefix}phy_data.nc
     global_ensemble_background_files: # these get listed in filelist03
-      path: ${ENKF_FCST}/enkfgdas.${eyyyymmdd}/${ehh}/atmos/mem???/${enkfcstname}.nc
+      ens_path: ${ENKF_FCST}/enkfgdas.*/*/atmos/mem080/gdas*.atmf009.nc
       prior_cycles: 100
     background_files:
       protocol: link
@@ -28,7 +27,6 @@ analysis_prod:
         fv3_dynvars: ${bkpath}/fv_core.res.tile1.nc
         fv3_tracer: ${bkpath}/fv_tracer.res.tile1.nc
         fv3_phyvars: ${bkpath}/phy_data.nc
-      path: "{{ forecast.fv3.rundir }}/INPUT"
     satbias:
       protocol: copy
       prior_cycles: 240
@@ -38,9 +36,10 @@ analysis_prod:
       backup_files:
         satbias_in: ${FIX_GSI}/rrfs.starting_satbias
         satbias_pc: ${FIX_GSI}/rrfs.starting_satbias_pc
-    radstat: # optional file
+    diag_files: # only necessary for EnVar
       prior_cycles: 240
-      files:
+      tarfile: ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${SAT_TIME}_radstat
+      files: # One of these two. Checks for files first
         radstat.rrfs: ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${SAT_TIME}_radstat
     files_to_link:
       fv3_akbk: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/fix/gsi/RRFS_CONUS_13km/akbk
@@ -79,18 +78,19 @@ analysis_prod:
         crtm_coeffs/FASTEM6.MWwater.EmisCoeff.bin: FASTEM6.MWwater.EmisCoeff.bin
         crtm_coeffs/AerosolCoeff.bin: AerosolCoeff.bin
         crtm_coeffs/CloudCoeff.bin: CloudCoeff.bin
+        crtm_coeffs<a>: {{fix_dir}}/Tau*bin
     provider_list:
       - ${FIX_GSI}/gsd_sfcobs_provider.txt
     reject_list:
       - ${AIRCRAFT_REJECT}/current_bad_aircraft.txt
       - ${AIRCRAFT_REJECT}/${AIR_REJECT_FN}
       - ${FIX_GSI}/current_bad_aircraft.txt
-    uselist:
+    use_list:
       - ${SFCOBS_USELIST}/current_mesonet_uselist.txt
       - ${SFCOBS_USELIST}/${MESO_USELIST_FN}
       - ${SFCOBS_USELIST}/gsd_sfcobs_uselist.txt
       - ${FIX_GSI}/gsd_sfcobs_uselist.txt
-    crtm_satfino_files:
+    crtm_satinfo_files:
       protocol: link
       source: '{{ platform.fix_crtm }}'
     observations:
