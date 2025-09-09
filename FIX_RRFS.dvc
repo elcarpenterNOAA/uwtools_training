@@ -1,0 +1,6 @@
+outs:
+- md5: 6acf87a21e281ff60ffb06c55c887bc5.dir
+  size: 277593522765
+  nfiles: 4346
+  hash: md5
+  path: FIX_RRFS
