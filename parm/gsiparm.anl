@@ -1,0 +1,100 @@
+&setup
+    miter = 2
+    niter(1:2) = 50, 50
+    write_diag(1:3) = .true., .false., .true.
+    qoption = 2
+    print_obs_para = .true.
+    diag_fed = .true.
+    diag_radardbz = .false.
+    if_model_dbz = .false.
+    if_model_fed = .false.
+    static_gsi_nopcp_dbz = 0.0
+    if_use_w_vr = .false.
+    rmesh_dbz = 4.0
+    rmesh_vr = 4.0
+    zmesh_dbz = 1000.0
+    zmesh_vr = 1000.0
+    inflate_dbz_obserr = .true.
+    missing_to_nopcp = .false.
+    radar_no_thinning = .true.
+    gencode = 78
+    factqmin = 0.0
+    factqmax = 0.0
+    iguess = -1
+    crtm_coeffs_path = './crtm_coeffs/'
+    lread_obs_save = .false.
+    lread_obs_skip = .false.
+    oneobtest = .false.
+    retrieval = .false.
+    nhr_assimilation = 3
+    l_foto = .false.
+    use_pbl = .false.
+    newpc4pred = .true.
+    adp_anglebc = .true.
+    angord = 4
+    passive_bc = .true.
+    use_edges = .false.
+    emiss_bc = .true.
+    diag_precon = .true.
+    step_start = 0.001
+    l4densvar = .false.
+    nhr_obsbin = 3
+    use_gfs_nemsio = .false.
+    use_gfs_ncio = .true.
+    reset_bad_radbc = .true.
+    netcdf_diag = .false.
+    binary_diag = .true.
+    lwrite_peakwt = .true.
+    innov_use_model_fed = .false.
+    use_prepb_satwind = .false.
+/
+
+&gridopts
+    fv3_regional = .true.
+    grid_ratio_fv3_regional = 2.0
+    nvege_type = 20
+    fv3_io_layout_y = 1
+/
+
+&bkgerr
+    vs = 0.1
+    hzscl = 0.4, 0.5, 0.6
+    bw = 0.0
+    fstat = .true.
+    usenewgfsberror = .true.
+/
+
+&anbkgerr
+    anisotropic = .false.
+/
+
+&obsqc
+    dfact = 0.75
+    dfact1 = 3.0
+    noiqc = .false.
+    c_varqc = 0.02
+    vadfile = 'prepbufr'
+    vadwnd_l2rw_qc = .true.
+/
+
+&obs_input
+    dmesh(1:3) = 120.0, 60.0, 30
+    time_window_max = 1.5
+    time_window_rad = 1.0
+    ext_sonde = .true.
+/
+
+&hybrid_ensemble
+    l_hyb_ens = .false.
+/
+
+&rapidrefresh_cldsurf
+    i_use_2mq4b = 2
+    i_use_2mt4b = 1
+    l_gsd_soiltq_nudge = .false.
+/
+
+&chem
+    berror_fv3_cmaq_regional = .false.
+    laeroana_fv3smoke = .false.
+/
