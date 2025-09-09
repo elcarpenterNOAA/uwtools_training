@@ -1,20 +1,16 @@
 forecast:
   fv3:
-    rundir: /scratch3/BMC/wrfruc/cholt/rrfs_work/output/2025082712/fcst
+    rundir: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst"
 timevars:
   yyyymmddhh: '{{ cycle.strftime("%Y%m%d%H") }}'
   yyyy: '{{ cycle.strftime("%Y") }}'
   mm: '{{ cycle.strftime("%m") }}'
   dd: '{{ cycle.strftime("%d") }}'
   hh: '{{ cycle.strftime("%H") }}'
-user:
-  rrfs_workflow_app: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow
 platform:
-  gsi_fixdir: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/fix/gsi
-  crtm_fixdir: /contrib/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/intel/2021.5.0/crtm-fix-2.4.0.1_emc-zvwtu3t/fix
-  crtm_dir: /contrib/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/intel/2021.5.0/crtm-fix-2.4.0.1_emc-zvwtu3t/fix
-  #obspath: /scratch4/BMC/public/data/grids/rap/obs
-  obspath: /scratch3/BMC/wrfruc/cholt/rrfs_work/input_data/rap_obs
+  gsi_fixdir: '{{ user.uw_training }}/FIX_RRFS/gsi'
+  crtm_fixdir: '{{ user.uw_training }}/FIX_RRFS/crtm/CRTM_v2.4.0'
+  obspath: '{{ user.uw_training }}/input_data/rap_obs'
 analysis:
   gsi:
     execution:
@@ -22,16 +18,16 @@ analysis:
         walltime: "00:50:00"
         cores: 120
         exclusive: true
-      executable: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/exec/gsi.x
+      executable: '{{ user.rrfs_workflow }}/exec/gsi.x'
       envcmds:
-        - module use /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/modulefiles
+        - module use {{ user.rrfs_workflow }}/modulefiles
         - module load build_hera_intel
         - ulimit -s unlimited
       mpicmd: srun
       stacksize: 300M
       threads: 1
     coupler.res:
-      template_file: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/fix/gsi/RRFS_CONUS_13km/fv3_coupler.res
+      template_file: '{{ user.uw_training }}/FIX_RRFS/gsi/RRFS_CONUS_13km/fv3_coupler.res'
       template_values:
         yyyy: "{{ timevars.yyyy }}"
         mm: "{{ timevars.mm }}"
@@ -84,10 +80,9 @@ analysis:
       abibufr: "{{ platform.obspath }}/{{ timevars.yyyymmddhh }}.rap.t{{ timevars.hh }}z.gsrcsr.tm00.bufr_d"
       ssmisbufr: "{{ platform.obspath }}/{{ timevars.yyyymmddhh }}.rap.t{{ timevars.hh }}z.ssmisu.tm00.bufr_d"
     namelist:
-      base_file: /scratch3/BMC/wrfruc/cholt/uw_training_prep/uw_training/parm/gsi.nml
-    obs_input_file: "{{ user.rrfs_workflow_app }}/parm/obs_input.txt"
-    rundir: /scratch3/BMC/wrfruc/cholt/rrfs_work/output/{{ timevars.yyyymmddhh }}/analysis
+      base_file: /scratch3/BMC/wrfruc/cholt/uw_training_prep/uw_training/parm/gsiparm.anl
+    obs_input_file: "{{ user.uw_training }}/parm/obs_input.txt"
+    rundir: "{{ user.expt_dir }}/{{ timevars.yyyymmddhh }}/analysis"
   platform:
     scheduler: slurm
     account: wrfruc
-
