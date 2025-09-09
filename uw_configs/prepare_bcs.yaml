@@ -1,9 +1,15 @@
+user:
+  expt_dir: /scratch3/BMC/wrfruc/cholt/uw_training_prep/expt1
+  uw_training: /scratch3/BMC/wrfruc/cholt/uw_training_prep/uw_training
+  rrfs_workflow: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/
 timevars:
   yyyymmddhh: '{{ cycle.strftime("%Y%m%d%H") }}'
+  yyyymmdd: '{{ cycle.strftime("%Y%m%d") }}'
   hh: '{{ cycle.strftime("%H") }}'
+  fff: '{{ "%03d" % (leadtime.total_seconds() / 3600) }}'
 platform:
-  fix_lam: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/fix_lam
-  fix_am: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfsx/v0.3.2/rrfs_conus_13km/fix_am
+  fix_lam: '{{ user.uw_training }}/FIX_RRFS/lam/RRFS_CONUS_13km'
+  fix_am: '{{ user.uw_training }}/FIX_RRFS/am'
 make_ics:
   # https://uwtools.readthedocs.io/en/main/sections/user_guide/yaml/components/chgres_cube.html
   chgres_cube:
@@ -13,9 +19,9 @@ make_ics:
         tasks_per_node: 20
         walltime: 00:30:00
       envcmds:
-        - module use /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/modulefiles
+        - module use {{ user.rrfs_workflow }}/modulefiles
         - module load build_hera_intel
-      executable: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/exec/chgres_cube
+      executable: '{{ user.rrfs_workflow }}/exec/chgres_cube'
       mpiargs:
         - "--export=ALL"
       mpicmd: srun
@@ -28,10 +34,10 @@ make_ics:
           cycle_day: !int "{{ (cycle + leadtime).strftime('%d') }}"
           cycle_hour: !int "{{ (cycle + leadtime).strftime('%H') }}"
           cycle_mon: !int "{{ (cycle + leadtime).strftime('%m') }}"
-          data_dir_input_grid: /scratch3/BMC/wrfruc/cholt/rrfs_work/input_data/gfs
+          data_dir_input_grid: "{{ user.uw_training }}/input_data/gfs"
           external_model: "GFS"
           fix_dir_target_grid: "{{ platform.fix_lam }}"
-          grib2_file_input_grid: GFS-20250827-12-f{{ "%03d" % (leadtime.total_seconds() / 3600) }}.grib2
+          grib2_file_input_grid: GFS-{{ timevars.yyyymmdd }}-{{ timevars.hh }}-f{{ timevars.fff }}.grib2
           halo_blend: 20
           halo_bndy: 4
           input_type: "grib2"
@@ -44,11 +50,11 @@ make_ics:
           regional: 1
           sotyp_from_climo: true
           tg3_from_soil: false
-          varmap_file: "/scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/sorc/UFS_UTILS/parm/varmap_tables/GFSphys_var_map.txt"
+          varmap_file: "{{ user.rrfs_workflow }}/sorc/UFS_UTILS/parm/varmap_tables/GFSphys_var_map.txt"
           vcoord_file_target_grid: "{{ platform.fix_am }}/global_hyblev_fcst_rrfsL65.txt"
           vgfrc_from_climo: true
           vgtyp_from_climo: true
-    rundir: '/scratch3/BMC/wrfruc/cholt/rrfs_work/input_data/ics'
+    rundir: '{{ user.expt_dir }}/{{ timevars.yyyymmddhh }}/ics'
   platform:
     account: wrfruc
     scheduler: slurm
@@ -67,7 +73,7 @@ make_lbcs:
         config:
           <<: *chgres_cube_config
           regional: 2
-    rundir: '/scratch3/BMC/wrfruc/cholt/rrfs_work/input_data/lbcs/{{ timevars.yyyymmddhh }}_{{ "%03d" % (leadtime.total_seconds() / 3600) }}'
+    rundir: '{{ user.expt_dir }}/{{ timevars.yyyymmddhh }}/lbcs/{{ timevars.yyyymmddhh }}_{{ timevars.fff }}'
   platform:
     account: wrfruc
     scheduler: slurm
