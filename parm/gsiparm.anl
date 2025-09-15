@@ -6,7 +6,7 @@
     print_obs_para = .true.
     diag_fed = .true.
     diag_radardbz = .false.
-    if_model_dbz = .false.
+    if_model_dbz = .true.
     if_model_fed = .false.
     static_gsi_nopcp_dbz = 0.0
     if_use_w_vr = .false.
@@ -46,7 +46,6 @@
     binary_diag = .true.
     lwrite_peakwt = .true.
     innov_use_model_fed = .false.
-    use_prepb_satwind = .false.
 /
 
 &gridopts
@@ -68,6 +67,12 @@
     anisotropic = .false.
 /
 
+&jcopts
+/
+
+&strongopts
+/
+
 &obsqc
     dfact = 0.75
     dfact1 = 3.0
@@ -84,6 +89,12 @@
     ext_sonde = .true.
 /
 
+&superob_radar
+/
+
+&lag_data
+/
+
 &hybrid_ensemble
     l_hyb_ens = .false.
 /
@@ -97,4 +108,10 @@
 &chem
     berror_fv3_cmaq_regional = .false.
     laeroana_fv3smoke = .false.
+/
+
+&nst
+/
+
+&singleob_test
 /

@@ -1,5 +1,5 @@
 user:
-  expt_dir: /scratch3/BMC/wrfruc/cholt/uw_training_prep/expt1
+  expt_dir: /scratch3/BMC/wrfruc/cholt/uw_training_prep/expt2
   uw_training: /scratch3/BMC/wrfruc/cholt/uw_training_prep/uw_training
   rrfs_workflow: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow/
 timevars:
@@ -8,7 +8,7 @@ timevars:
   hh: '{{ cycle.strftime("%H") }}'
   fff: '{{ "%03d" % (leadtime.total_seconds() / 3600) }}'
 platform:
-  fix_lam: '{{ user.uw_training }}/FIX_RRFS/lam/RRFS_CONUS_13km'
+  fix_lam: '{{ user.uw_training }}/FIX_RRFS/lam/RRFS_CONUS_13km_Lake_fracSV'
   fix_am: '{{ user.uw_training }}/FIX_RRFS/am'
 make_ics:
   # https://uwtools.readthedocs.io/en/main/sections/user_guide/yaml/components/chgres_cube.html

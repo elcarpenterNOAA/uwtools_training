@@ -1,13 +1,18 @@
 timevars:
   pyyyymmddhh: '{{ (cycle - user.cycle_int).strftime("%Y%m%d%H") }}'
+  pyyyymmdd: '{{ (cycle - user.cycle_int).strftime("%Y%m%d") }}'
   yyyymmddhh: '{{ cycle.strftime("%Y%m%d%H") }}'
+  yyyymmdd: '{{ cycle.strftime("%Y%m%d") }}'
   hh: '{{ cycle.strftime("%H") }}'
 user:
+  uw_training: /scratch3/BMC/wrfruc/cholt/uw_training_prep/uw_training
+  expt_dir: /scratch3/BMC/wrfruc/cholt/uw_training_prep/expt2
+
   rrfs_workflow: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow
   physics_suite: FV3_HRRR_gf
   cycle_int: !timedelta 1
 platform:
-  fix_lam: "{{ user.uw_training }}/FIX_RRFS/lam/RRFS_CONUS_13km"
+  fix_lam: "{{ user.uw_training }}/FIX_RRFS/lam/RRFS_CONUS_13km_Lake_fracSV"
   fix_am: "{{ user.uw_training }}/FIX_RRFS/am"
 forecast_prod:
   fv3: &fv3_config
@@ -85,7 +90,7 @@ forecast_prod:
       path: "{{ user.uw_training }}/input_data/lbcs/{{ timevars.yyyymmddhh }}_{forecast_hour:03d}/gfs.bndy.nc"
     length: 3
     model_configure:
-      update_values:
+      update_values: &model_configure
         start_year: !int '{{ cycle.year }}'
         start_month: !int '{{ cycle.month }}'
         start_day: !int '{{ cycle.day }}'
@@ -137,13 +142,13 @@ cycled_forecast:
   fv3:
     <<: *fv3_config
     files_to_copy:
-      INPUT/fv_core.res.tile1.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}.fv_core.res.tile1.nc"
-      INPUT/fv_srf_wnd.res.tile1.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}.fv_srf_wnd.res.tile1.nc"
-      INPUT/fv_tracer.res.tile1.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}.fv_tracer.res.tile1.nc"
-      INPUT/phy_data.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}.phy_data.nc"
-      INPUT/sfc_data.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}.sfc_data.nc"
-      INPUT/bk_coupler.res: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}.coupler.res"
-      INPUT/fv_core.res.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}.fv_core.res.nc"
+      INPUT/fv_core.res.tile1.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.fv_core.res.tile1.nc"
+      INPUT/fv_srf_wnd.res.tile1.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.fv_srf_wnd.res.tile1.nc"
+      INPUT/fv_tracer.res.tile1.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.fv_tracer.res.tile1.nc"
+      INPUT/phy_data.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.phy_data.nc"
+      INPUT/sfc_data.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.sfc_data.nc"
+      INPUT/bk_coupler.res: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.coupler.res"
+      INPUT/fv_core.res.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.fv_core.res.nc"
       INPUT/gfs_ctrl.nc: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst/INPUT/gfs_ctrl.nc"
       ufs.configure: "{{ user.uw_training }}/parm/ufs.configure"
       fd_ufs.yaml: "{{ user.uw_training }}/parm//fd_ufs.yaml"
@@ -151,7 +156,7 @@ cycled_forecast:
     lateral_boundary_conditions:
       interval_hours: 1
       offset: 1
-      path: "{{ user.uw_training }}/input_data/lbcs/{{ timevars.yyyymmddhh }}_{forecast_hour:03d}/gfs.bndy.nc"
+      path: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/lbcs/{{ timevars.pyyyymmddhh }}_{forecast_hour:03d}/gfs.bndy.nc"
     namelist:
       base_file: "{{ user.uw_training }}/parm/input.nml"
       update_values:
@@ -164,6 +169,10 @@ cycled_forecast:
           warm_start: true
         gfs_physics_nml:
           lsoil: 9
+    model_configure:
+      update_values:
+        <<: *model_configure
+        run_continue: true
   platform:
     scheduler: slurm
     account: wrfruc

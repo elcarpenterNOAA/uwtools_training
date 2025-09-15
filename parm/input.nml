@@ -145,7 +145,7 @@
 /
 
 &fv_diagnostics_nml
-    do_hailcast = .false.
+    do_hailcast = .true.
 /
 
 &fv_grid_nml

@@ -1,16 +1,25 @@
-forecast:
-  fv3:
-    rundir: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst"
+user:
+  rrfs_workflow: /scratch3/BMC/wrfruc/cholt/rrfs_work/rrfs-workflow
+  uw_training: /scratch3/BMC/wrfruc/cholt/uw_training_prep/uw_training
+  expt_dir: /scratch3/BMC/wrfruc/cholt/uw_training_prep/expt2
+  cycle_freq: !timedelta 1
 timevars:
+  pyyyymmddhh: '{{ (cycle - user.cycle_freq).strftime("%Y%m%d%H") }}'
   yyyymmddhh: '{{ cycle.strftime("%Y%m%d%H") }}'
+  yyyymmdd: '{{ cycle.strftime("%Y%m%d") }}'
   yyyy: '{{ cycle.strftime("%Y") }}'
   mm: '{{ cycle.strftime("%m") }}'
   dd: '{{ cycle.strftime("%d") }}'
   hh: '{{ cycle.strftime("%H") }}'
+forecast:
+  fv3:
+    rundir: "{{ user.expt_dir }}/{{ timevars.pyyyymmddhh }}/fcst"
 platform:
   gsi_fixdir: '{{ user.uw_training }}/FIX_RRFS/gsi'
-  crtm_fixdir: '{{ user.uw_training }}/FIX_RRFS/crtm/CRTM_v2.4.0'
+  crtm_fixdir: /contrib/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/intel/2021.5.0/crtm-fix-2.4.0.1_emc-zvwtu3t/fix
   obspath: '{{ user.uw_training }}/input_data/rap_obs'
+gsi:
+  foo: bar
 analysis:
   gsi:
     execution:
@@ -33,6 +42,7 @@ analysis:
         mm: "{{ timevars.mm }}"
         dd: "{{ timevars.dd }}"
         hh: "{{ timevars.hh }}"
+        crh: "{{ gsi.foo }}"
     files_to_copy:
       anavinfo: "{{ platform.gsi_fixdir }}/anavinfo.rrfs_conv_dbz"
       berror_stats: "{{ platform.gsi_fixdir }}/rrfs_glb_berror.l127y770.f77"
@@ -45,10 +55,10 @@ analysis:
     files_to_link:
       fv3_akbk: "{{ platform.gsi_fixdir }}/RRFS_CONUS_13km/fv3_akbk"
       fv3_grid_spec: "{{ platform.gsi_fixdir }}/RRFS_CONUS_13km/fv3_grid_spec"
-      fv3_dynvars: "{{ forecast.fv3.rundir }}/RESTART/20250827.180000.fv_core.res.tile1.nc"
-      fv3_tracer: "{{ forecast.fv3.rundir }}/RESTART/20250827.180000.fv_tracer.res.tile1.nc"
-      fv3_sfcdata: "{{ forecast.fv3.rundir }}/RESTART/20250827.180000.sfc_data.nc"
-      fv3_phyvars: "{{ forecast.fv3.rundir }}/RESTART/20250827.180000.phy_data.nc"
+      fv3_dynvars: "{{ forecast.fv3.rundir }}/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.fv_core.res.tile1.nc"
+      fv3_tracer: "{{ forecast.fv3.rundir }}/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.fv_tracer.res.tile1.nc"
+      fv3_sfcdata: "{{ forecast.fv3.rundir }}/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.sfc_data.nc"
+      fv3_phyvars: "{{ forecast.fv3.rundir }}/RESTART/{{ timevars.yyyymmdd }}.{{ timevars.hh }}0000.phy_data.nc"
       crtm_coeffs/Nalli.IRwater.EmisCoeff.bin: "{{ platform.crtm_fixdir }}/Nalli.IRwater.EmisCoeff.bin"
       crtm_coeffs/NPOESS.IRice.EmisCoeff.bin: "{{ platform.crtm_fixdir }}/NPOESS.IRice.EmisCoeff.bin"
       crtm_coeffs/NPOESS.IRsnow.EmisCoeff.bin: "{{ platform.crtm_fixdir }}/NPOESS.IRsnow.EmisCoeff.bin"

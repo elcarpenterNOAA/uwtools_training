@@ -96,4 +96,3 @@ OBS_INPUT::
    larcInGSI      larccld     null      larccld              1.0     0     0
    abibufr        abi         g18       abi_g18              0.0     2     0
 ::
-
