@@ -19,7 +19,7 @@ make_ics:
       batchargs:
         nodes: 1
         tasks_per_node: 20
-        walltime: 00:30:00
+        walltime: 00:03:00
       envcmds:
         - module use {{ user.rrfs_workflow }}/modulefiles
         - module load build_hera_intel
